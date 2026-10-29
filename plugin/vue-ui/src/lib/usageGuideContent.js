@@ -1,4 +1,4 @@
-/** 产品内使用说明文案（与 docs/产品说明.md、内置网页.md 对齐） */
+/** 产品内使用说明文案（与 README、docs/内置网页.md 对齐） */
 
 export const guideSections = [
   {
