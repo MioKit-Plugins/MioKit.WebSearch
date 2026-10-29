@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Plugin/">
+    <Project Path="plugin/MioKit.WebSearch.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="tests/MioKit.WebSearch.Tests.csproj" />
+  </Folder>
+</Solution>

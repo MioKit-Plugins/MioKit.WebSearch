@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <MioKitPackageVersion Condition="'$(MioKitPackageVersion)' == ''">1.3.1</MioKitPackageVersion>
+    <!-- Prevent MSBuild globs from traversing deeply nested frontend dependencies. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(MSBuildThisFileDirectory)plugin/vue-ui/node_modules/**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>

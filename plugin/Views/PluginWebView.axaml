@@ -1,0 +1,23 @@
+<shad:ShadWindow
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:webview2="clr-namespace:MioKit.Webview2;assembly=MioKit.Webview2"
+    xmlns:shad="clr-namespace:Ti.Avalonia.Shadcn.Controls;assembly=Ti.Avalonia.Shadcn"
+    xmlns:mio="https://github.com/tiny-isle/MioKit"
+    x:Class="WebSearch.Views.PluginWebView"
+    Title="网页快开"
+    Width="1050"
+    Height="760"
+    MinWidth="760"
+    MinHeight="560"
+    CanPin="True"
+    WindowStartupLocation="CenterOwner">
+    <Grid>
+        <webview2:MioWebview2 x:Name="WebView" />
+        <TextBlock x:Name="InitializationError" IsVisible="False" Margin="24"
+                   TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" />
+    </Grid>
+    <Interaction.Behaviors>
+        <mio:PluginWindowBehavior Type="miokit.websearch" />
+    </Interaction.Behaviors>
+</shad:ShadWindow>
