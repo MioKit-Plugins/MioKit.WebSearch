@@ -56,7 +56,6 @@ public partial class WebSearchJsService : ObservableObject, IMioEventHandler<Mio
 
     public ObservableCollection<BrowserOptionDto> Browsers { get; } = [];
     public ObservableCollection<BrowserProfileDto> Profiles { get; } = [];
-    public ObservableCollection<string> ProfileSyncErrors { get; } = [];
     public ObservableCollection<WebsiteDto> Websites { get; } = [];
     public string DefaultWebsiteIconDataUrl => IconSource.DefaultDataUrl;
 
@@ -405,7 +404,6 @@ public partial class WebSearchJsService : ObservableObject, IMioEventHandler<Mio
         ProfileCount = _index.ProfileCount == 0 ? Profiles.Count : _index.ProfileCount;
         LastSynchronizedAt = _index.LastSynchronizedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "尚未同步";
         LastError = _index.LastError;
-        Replace(ProfileSyncErrors, _index.ProfileSyncErrors);
     }
 
     private void OnIndexStateChanged(object? sender, EventArgs e)

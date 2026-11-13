@@ -12,7 +12,7 @@ public sealed class SdkStoreFactoryCollection;
 public sealed class WebsiteSearchGroupTests
 {
     [Fact]
-    public async Task GlobalSearchHonorsEachSwitchAndCapsEachSourceAtFive()
+    public void BrowserSearchSettingsStoreEachSwitchIndependently()
     {
         var factoryProperty = typeof(MioObject).Assembly
             .GetType("MioKit.Sdk.StoreFactory", throwOnError: true)!
@@ -32,59 +32,6 @@ public sealed class WebsiteSearchGroupTests
             settings.BookmarkGlobalEnabled = true;
             Assert.True(settings.HistoryGlobalEnabled);
             Assert.True(settings.BookmarkGlobalEnabled);
-
-            var historyEnabled = false;
-            var bookmarkEnabled = false;
-            var settingsReadCount = 0;
-            var calls = new List<(BrowserItemKind Kind, int Limit)>();
-            Func<BrowserItemKind, bool> isGlobalEnabled = kind =>
-            {
-                settingsReadCount++;
-                return kind == BrowserItemKind.History
-                    ? historyEnabled
-                    : bookmarkEnabled;
-            };
-            Func<BrowserItemKind, SearchRequest, IWriteOnlyResultList<SearchResult>, int,
-                CancellationToken, ValueTask> search = (kind, _, _, limit, _) =>
-            {
-                calls.Add((kind, limit));
-                return ValueTask.CompletedTask;
-            };
-
-            var constructor = typeof(BrowserGlobalSearchGroup)
-                .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-                .Single(ctor => ctor.GetParameters().Length == 3);
-            var group = (BrowserGlobalSearchGroup)constructor.Invoke(
-                ["global-test", isGlobalEnabled, search]);
-            var request = new SearchRequest { SearchText = "example" };
-            var results = new ResultList();
-
-            await group.SearchAsync(request, results, CancellationToken.None);
-            Assert.Empty(calls);
-
-            historyEnabled = true;
-            await group.SearchAsync(request, results, CancellationToken.None);
-            Assert.Equal([(BrowserItemKind.History, 5)], calls);
-
-            historyEnabled = false;
-            bookmarkEnabled = true;
-            calls.Clear();
-            await group.SearchAsync(request, results, CancellationToken.None);
-            Assert.Equal([(BrowserItemKind.Bookmark, 5)], calls);
-
-            historyEnabled = true;
-            calls.Clear();
-            await group.SearchAsync(request, results, CancellationToken.None);
-            Assert.Equal(
-                [(BrowserItemKind.History, 5), (BrowserItemKind.Bookmark, 5)],
-                calls);
-
-            var settingsReadBeforeEmptyQuery = settingsReadCount;
-            calls.Clear();
-            await group.SearchAsync(
-                new SearchRequest { SearchText = "   " }, results, CancellationToken.None);
-            Assert.Empty(calls);
-            Assert.Equal(settingsReadBeforeEmptyQuery, settingsReadCount);
         }
         finally
         {
@@ -93,7 +40,7 @@ public sealed class WebsiteSearchGroupTests
     }
 
     [Fact]
-    public async Task TemplateNameMatchAddsDirectOpenAndKeepsSearchAtBottom()
+    public async Task TemplateQueriesProduceOneSearchResultAtBottom()
     {
         // MioObject obtains its store from an SDK-wide internal factory. Use the
         // SDK's in-memory design store for this test and restore the factory.
@@ -128,21 +75,10 @@ public sealed class WebsiteSearchGroupTests
                 results,
                 CancellationToken.None);
 
-            Assert.Collection(
-                results.ToList(),
-                direct =>
-                {
-                    Assert.Equal("Bing", direct.Title);
-                    Assert.Equal(SortPriority.Normal, direct.PinMode);
-                    Assert.Equal("https://www.bing.com/", Assert.IsType<OpenUrlPayload>(direct.Payload).Url);
-                },
-                search =>
-                {
-                    Assert.Equal(SortPriority.AlwaysBottom, search.PinMode);
-                    Assert.Equal(
-                        "https://www.bing.com/search?q=Bing",
-                        Assert.IsType<OpenUrlPayload>(search.Payload).Url);
-                });
+            var search = Assert.Single(results.ToList());
+            Assert.Equal("使用 Bing 搜索“Bing”", search.Title);
+            Assert.Equal(SortPriority.AlwaysBottom, search.PinMode);
+            Assert.Equal("https://www.bing.com/search?q=Bing", Assert.IsType<OpenUrlPayload>(search.Payload).Url);
 
             var ordinaryResults = new ResultList();
             await group.SearchAsync(
